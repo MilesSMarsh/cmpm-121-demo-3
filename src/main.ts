@@ -3,10 +3,16 @@ import "./style.css";
 import leaflet from "leaflet";
 import luck from "./luck";
 import "./leafletWorkaround";
+import "./board.ts";
 
 const MERRILL_CLASSROOM = leaflet.latLng({
   lat: 36.9995,
   lng: -122.0533,
+});
+
+const NULL_ISLAND = leaflet.latLng({
+  lat: 0,
+  lng: 0,
 });
 
 const GAMEPLAY_ZOOM_LEVEL = 19;
@@ -17,12 +23,12 @@ const PIT_SPAWN_PROBABILITY = 0.1;
 const mapContainer = document.querySelector<HTMLElement>("#map")!;
 
 const map = leaflet.map(mapContainer, {
-  center: MERRILL_CLASSROOM,
+  center: NULL_ISLAND,
   zoom: GAMEPLAY_ZOOM_LEVEL,
-  minZoom: GAMEPLAY_ZOOM_LEVEL,
+  minZoom: 0,
   maxZoom: GAMEPLAY_ZOOM_LEVEL,
-  zoomControl: false,
-  scrollWheelZoom: false,
+  zoomControl: true,
+  scrollWheelZoom: true,
 });
 
 leaflet
@@ -36,6 +42,7 @@ leaflet
 const playerMarker = leaflet.marker(MERRILL_CLASSROOM);
 playerMarker.bindTooltip("That's you!");
 playerMarker.addTo(map);
+moveTo(playerMarker.getLatLng().lat, playerMarker.getLatLng().lng);
 
 const sensorButton = document.querySelector("#sensor")!;
 sensorButton.addEventListener("click", () => {
