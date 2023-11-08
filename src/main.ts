@@ -3,7 +3,7 @@ import "./style.css";
 import leaflet from "leaflet";
 import luck from "./luck";
 import "./leafletWorkaround";
-import "./board.ts";
+import { Board } from "./board.ts";
 
 const MERRILL_CLASSROOM = leaflet.latLng({
   lat: 36.9995,
@@ -19,6 +19,9 @@ const GAMEPLAY_ZOOM_LEVEL = 19;
 const TILE_DEGREES = 1e-4;
 const NEIGHBORHOOD_SIZE = 8;
 const PIT_SPAWN_PROBABILITY = 0.1;
+const VISIBILITY_RADIUS = 8;
+
+const myBoard = new Board(TILE_DEGREES, VISIBILITY_RADIUS);
 
 const mapContainer = document.querySelector<HTMLElement>("#map")!;
 
@@ -61,12 +64,12 @@ statusPanel.innerHTML = "No points yet...";
 function makePit(i: number, j: number) {
   const bounds = leaflet.latLngBounds([
     [
-      MERRILL_CLASSROOM.lat + i * TILE_DEGREES,
-      MERRILL_CLASSROOM.lng + j * TILE_DEGREES,
+      playerMarker.getLatLng().lat + i * TILE_DEGREES,
+      playerMarker.getLatLng().lng + j * TILE_DEGREES,
     ],
     [
-      MERRILL_CLASSROOM.lat + (i + 1) * TILE_DEGREES,
-      MERRILL_CLASSROOM.lng + (j + 1) * TILE_DEGREES,
+      playerMarker.getLatLng().lat + (i + 1) * TILE_DEGREES,
+      playerMarker.getLatLng().lng + (j + 1) * TILE_DEGREES,
     ],
   ]);
 

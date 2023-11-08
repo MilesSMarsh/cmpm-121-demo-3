@@ -21,13 +21,16 @@ export class Board {
     const { i, j } = cell;
     const key = [i, j].toString();
     if (!this.knownCells.has(key)) {
-      this.knownCells.set(key, { i: i, j: j });
+      this.knownCells.set(key, { i, j });
     }
     return this.knownCells.get(key)!;
   }
 
   getCellForPoint(point: leaflet.LatLng): Cell {
-    return this.getCanonicalCell({ i: point.lat, j: point.lng });
+    return this.getCanonicalCell({
+      i: Number(point.lat.toFixed(4)),
+      j: Number(point.lng.toFixed(4)),
+    });
   }
 
   getCellBounds(cell: Cell): leaflet.LatLngBounds {
