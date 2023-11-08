@@ -22,6 +22,7 @@ const PIT_SPAWN_PROBABILITY = 0.1;
 const VISIBILITY_RADIUS = 8;
 
 const myBoard = new Board(TILE_DEGREES, VISIBILITY_RADIUS);
+console.log(myBoard);
 
 const mapContainer = document.querySelector<HTMLElement>("#map")!;
 
