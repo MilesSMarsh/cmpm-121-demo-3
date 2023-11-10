@@ -1,9 +1,9 @@
 import "leaflet/dist/leaflet.css";
 import "./style.css";
-import leaflet, { TileLayer } from "leaflet";
+import leaflet from "leaflet";
 import luck from "./luck";
 import "./leafletWorkaround";
-import { Board } from "./board.ts";
+import { Board } from "./board";
 
 const MERRILL_CLASSROOM = leaflet.latLng({
   lat: 36.9995,
