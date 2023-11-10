@@ -24,7 +24,6 @@ const myBoard = new Board(TILE_DEGREES, VISIBILITY_RADIUS);
 console.log(myBoard);
 
 const arrayOfVisibleCaches: leaflet.Layer[] = [];
-const arrayOfMementos: string[] = [];
 
 const mapContainer = document.querySelector<HTMLElement>("#map")!;
 
@@ -115,31 +114,12 @@ function makeCache(i: number, j: number) {
     })
   );
   const bounds = myBoard.getCellBounds(cell);
-
   const cache = leaflet.rectangle(bounds) as leaflet.Layer;
 
   cache.bindPopup(() => {
-    const value = Math.floor(luck([i, j, "initialValue"].toString()) * 10);
-
-    const container = document.createElement("div");
-    container.innerHTML = `
-                <div>There is a cache here at "${i},${j}". Collect Geocoins here.</div>`;
-    for (let x = 0; x <= value; x++) {
-      const coin = JSON.stringify({ i, j, x });
-      if (arrayOfMementos.includes(coin)) {
-        continue;
-      }
-      const currCoin = document.createElement("button") as HTMLElement;
-      container.append(currCoin);
-      currCoin.innerHTML = `
-                <div>"GeoCoin: <span id="coin">${coin}</span></div>`;
-      currCoin.addEventListener("click", () => {
-        console.log(arrayOfMementos);
-        arrayOfMementos.push(coin);
-        currCoin.remove();
-      });
-    }
-
+    const container = document.createElement("div"); //create pop up
+    container.innerHTML = `<div>There is a cache here at "${i},${j}". Collect Geocoins here.</div>`; //text for pop up
+    myBoard.getCacheForPoint(cell).addCoinsFromCache(container);
     return container;
   });
   cache.addTo(map);
