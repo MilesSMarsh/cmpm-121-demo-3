@@ -55,3 +55,38 @@ export class Board {
     return resultCells;
   }
 }
+
+export class Geocoin {
+  cell: Cell;
+  serial: string;
+  constructor(cell: Cell, serialNum: number) {
+    this.cell = cell;
+    this.serial = [this.cell.i, this.cell.j, serialNum].toString();
+  }
+
+  toString() {
+    return JSON.stringify(this);
+  }
+}
+
+export class Geocache {
+  cell: Cell;
+  cacheCoins: Geocoin[] = [];
+  constructor(cell: Cell) {
+    this.cell = cell;
+  }
+
+  addCoin(coin: Geocoin) {
+    this.cacheCoins.push(coin);
+  }
+
+  cacheToString(): string {
+    return JSON.stringify(this);
+  }
+
+  stringToCache(cacheData: string) {
+    const cache = JSON.parse(cacheData) as Geocache;
+    this.cell = cache.cell;
+    this.cacheCoins = cache.cacheCoins;
+  }
+}
