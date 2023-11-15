@@ -157,7 +157,6 @@ function addCoinsFromCache(geocache: Geocache, container: HTMLElement) {
     const currCoin = document.createElement("button") as HTMLElement;
     container.append(currCoin);
     currCoin.style.color = "Green";
-    // currCoin.style.accentColor = `#00ff00`;
     currCoin.innerHTML = `
             <div>Take: <span id="coin">${coin.serial}</span></div>`;
 
