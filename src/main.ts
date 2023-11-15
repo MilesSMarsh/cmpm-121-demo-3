@@ -3,7 +3,7 @@ import "./style.css";
 import leaflet from "leaflet";
 import luck from "./luck";
 import "./leafletWorkaround";
-import { Board } from "./board";
+import { Board, Geocache, Cell, Geocoin } from "./board";
 
 const MERRILL_CLASSROOM = leaflet.latLng({
   lat: 36.9995,
@@ -24,6 +24,7 @@ const myBoard = new Board(TILE_DEGREES, VISIBILITY_RADIUS);
 console.log(myBoard);
 
 const arrayOfVisibleCaches: leaflet.Layer[] = [];
+const arrayInventory: Geocoin[] = [];
 
 const mapContainer = document.querySelector<HTMLElement>("#map")!;
 
@@ -117,10 +118,13 @@ function makeCache(i: number, j: number) {
   const cache = leaflet.rectangle(bounds) as leaflet.Layer;
 
   cache.bindPopup(() => {
-    const container = document.createElement("div"); //create pop up
-    container.innerHTML = `<div>There is a cache here at "${i},${j}". Collect Geocoins here.</div>`; //text for pop up
-    myBoard.getCacheForPoint(cell).addCoinsFromCache(container);
-    return container;
+    const popupContainer = document.createElement("div"); //create pop up
+    popupContainer.innerHTML = `<div>There is a cache here at "${i},${j}". Collect Geocoins here.</div></br>`; //text for pop up
+
+    addCoinsFromCache(myBoard.getCacheForPoint(cell), popupContainer);
+
+    addCoinsFromInventory(myBoard.getCacheForPoint(cell), popupContainer);
+    return popupContainer;
   });
   cache.addTo(map);
   arrayOfVisibleCaches.push(cache);
@@ -146,4 +150,159 @@ function updatePlayer(player: leaflet.LatLng) {
     cache.remove();
   });
   getCachesNearby(player);
+}
+
+function addCoinsFromCache(geocache: Geocache, container: HTMLElement) {
+  geocache.cacheCoins.forEach((coin) => {
+    const currCoin = document.createElement("button") as HTMLElement;
+    container.append(currCoin);
+    currCoin.style.color = "Green";
+    // currCoin.style.accentColor = `#00ff00`;
+    currCoin.innerHTML = `
+            <div>Take: <span id="coin">${coin.serial}</span></div>`;
+
+    const currHiddenCoin = document.createElement("button") as HTMLElement;
+    currHiddenCoin.hidden = true;
+    container.append(currHiddenCoin);
+    currHiddenCoin.style.color = "Blue";
+    currHiddenCoin.innerHTML = `
+            <div>Place: <span id="coin">${coin.serial}</span></div>`;
+    currCoin.addEventListener("click", () => {
+      currCoin.hidden = true;
+      currHiddenCoin.hidden = false;
+      geocache.removeCoin(coin);
+      arrayInventory.push(coin);
+      updateCacheAtPoint(geocache.cell, geocache.cacheToString(), myBoard);
+    });
+
+    currHiddenCoin.addEventListener("click", () => {
+      currCoin.hidden = false;
+      currHiddenCoin.hidden = true;
+      geocache.addCoin(coin);
+      removeFromInventory(coin);
+      updateCacheAtPoint(geocache.cell, geocache.cacheToString(), myBoard);
+    });
+  });
+}
+
+function addCoinsFromInventory(geocache: Geocache, container: HTMLElement) {
+  arrayInventory.forEach((coin) => {
+    const currCoin = document.createElement("button") as HTMLElement;
+    container.append(currCoin);
+    currCoin.style.color = "Blue";
+    currCoin.innerHTML = `
+            <div>Place: <span id="coin">${coin.serial}</span></div>`;
+    const currHiddenCoin = document.createElement("button") as HTMLElement;
+    currHiddenCoin.hidden = true;
+    container.append(currHiddenCoin);
+    currHiddenCoin.style.color = "Green";
+    currHiddenCoin.innerHTML = `
+            <div>Take: <span id="coin">${coin.serial}</span></div>`;
+
+    currCoin.addEventListener("click", () => {
+      currCoin.hidden = true;
+      currHiddenCoin.hidden = false;
+      geocache.addCoin(coin);
+      removeFromInventory(coin);
+      updateCacheAtPoint(geocache.cell, geocache.cacheToString(), myBoard);
+    });
+
+    currHiddenCoin.addEventListener("click", () => {
+      currCoin.hidden = false;
+      currHiddenCoin.hidden = true;
+      geocache.removeCoin(coin);
+      arrayInventory.push(coin);
+      updateCacheAtPoint(geocache.cell, geocache.cacheToString(), myBoard);
+    });
+  });
+}
+
+//Tried to refactor but it just got larger I might come back to this later
+
+// function addCoinsFromArray(
+//   array: Geocoin[],
+//   geocache: Geocache,
+//   container: HTMLElement,
+//   inInventory: boolean
+// ) {
+//   let command1 = "Place";
+//   let command2 = "Take";
+//   array.forEach((coin) => {
+//     const currCoin = document.createElement("button") as HTMLElement;
+//     container.append(currCoin);
+
+//     const currHiddenCoin = document.createElement("button") as HTMLElement;
+//     currHiddenCoin.hidden = true;
+//     container.append(currHiddenCoin);
+
+//     let function1: () => void;
+//     let function2: () => void;
+
+//     if (inInventory) {
+//       command1 = "Place";
+//       command2 = "Take";
+//       function1 = function () {
+//         placeCoin(currCoin, currHiddenCoin, coin);
+//       };
+//       function2 = function () {
+//         removeCoin(currCoin, currHiddenCoin, coin);
+//       };
+//     } else {
+//       command1 = "take";
+//       command2 = "place";
+//       function2 = function () {
+//         placeCoin(currCoin, currHiddenCoin, coin);
+//       };
+//       function1 = function () {
+//         removeCoin(currCoin, currHiddenCoin, coin);
+//       };
+//     }
+//     currCoin.innerHTML = `
+//             <div>${command1}: <span id="coin">${coin.serial}</span></div>`;
+//     currCoin.addEventListener("click", () => function1());
+
+//     currHiddenCoin.innerHTML = `
+//             <div>${command2}: <span id="coin">${coin.serial}</span></div>`;
+//     currHiddenCoin.addEventListener("click", () => function2());
+//   });
+
+//   function placeCoin(
+//     currCoin: HTMLElement,
+//     currHiddenCoin: HTMLElement,
+//     coin: Geocoin
+//   ) {
+//     console.log("put coin");
+//     currCoin.hidden = true;
+//     currHiddenCoin.hidden = false;
+//     geocache.addCoin(coin);
+//     removeFromInventory(coin);
+//     updateCacheAtPoint(geocache.cell, geocache.cacheToString(), myBoard);
+//   }
+
+//   function removeCoin(
+//     currCoin: HTMLElement,
+//     currHiddenCoin: HTMLElement,
+//     coin: Geocoin
+//   ) {
+//     console.log("take coin");
+//     currCoin.hidden = false;
+//     currHiddenCoin.hidden = true;
+//     geocache.removeCoin(coin);
+//     arrayInventory.push(coin);
+//     updateCacheAtPoint(geocache.cell, geocache.cacheToString(), myBoard);
+//   }
+// }
+
+function removeFromInventory(coin: Geocoin) {
+  arrayInventory.forEach((item, index) => {
+    if (item === coin) {
+      arrayInventory.splice(index, 1);
+    }
+  });
+}
+
+function updateCacheAtPoint(cell: Cell, data: string, board: Board) {
+  const { i, j } = cell;
+  const key = [i, j].toString();
+  board.knownCells.set(key, data);
 }

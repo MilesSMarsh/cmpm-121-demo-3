@@ -3,7 +3,7 @@ import luck from "./luck";
 
 const MAX_COINS_PER_CELL = 10;
 
-interface Cell {
+export interface Cell {
   readonly i: number;
   readonly j: number;
 }
@@ -12,7 +12,7 @@ export class Board {
   readonly tileWidth: number;
   readonly tileVisibilityRadius: number;
 
-  private readonly knownCells: Map<string, Geocache>;
+  knownCells: Map<string, string>;
 
   constructor(tileWidth: number, tileVisibilityRadius: number) {
     this.tileWidth = tileWidth;
@@ -26,7 +26,7 @@ export class Board {
     const key = [i, j].toString();
     if (!this.knownCells.has(key)) {
       cache.generateCoinsForCell(cell);
-      this.knownCells.set(key, cache);
+      this.knownCells.set(key, cache.cacheToString());
     }
     return cache.cell;
   }
@@ -34,7 +34,7 @@ export class Board {
   getCacheForPoint(cell: Cell): Geocache {
     const { i, j } = cell;
     const key = [i, j].toString();
-    return this.knownCells.get(key)!;
+    return new Geocache(cell).stringToCache(this.knownCells.get(key)!);
   }
 
   getCellForPoint(point: leaflet.LatLng): Cell {
@@ -87,6 +87,15 @@ export class Geocache {
     this.cell = cell;
   }
 
+  removeCoin(coin: Geocoin) {
+    //add functionallity
+    this.cacheCoins.forEach((item, index) => {
+      if (item === coin) {
+        this.cacheCoins.splice(index, 1);
+      }
+    });
+  }
+
   generateCoinsForCell(cell: Cell) {
     const { i, j } = cell;
     const value = Math.floor(
@@ -94,29 +103,22 @@ export class Geocache {
     );
     for (let x = 0; x <= value; x++) {
       const coin = new Geocoin(cell, x);
-      this.cacheCoins.push(coin);
+      this.addCoin(coin);
     }
   }
 
-  addCoinsFromCache(container: HTMLElement) {
-    this.cacheCoins.forEach((coin) => {
-      const currCoin = document.createElement("button") as HTMLElement;
-      container.append(currCoin);
-      currCoin.innerHTML = `
-              <div>"GeoCoin: <span id="coin">${coin.serial}</span></div>`;
-      currCoin.addEventListener("click", () => {
-        console.log("take coin");
-      });
-    });
+  addCoin(coin: Geocoin) {
+    this.cacheCoins.push(coin);
   }
 
   cacheToString(): string {
     return JSON.stringify(this);
   }
 
-  stringToCache(cacheData: string) {
+  stringToCache(cacheData: string): Geocache {
     const cache = JSON.parse(cacheData) as Geocache;
     this.cell = cache.cell;
     this.cacheCoins = cache.cacheCoins;
+    return this;
   }
 }
