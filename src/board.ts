@@ -31,6 +31,12 @@ export class Board {
     return cache.cell;
   }
 
+  updateKnownCells(board: string[][]) {
+    board.forEach((cache) => {
+      this.knownCells.set(cache[0], cache[1]);
+    });
+  }
+
   getCacheForPoint(cell: Cell): Geocache {
     const { i, j } = cell;
     const key = [i, j].toString();

@@ -21,10 +21,16 @@ const CACHE_SPAWN_PROBABILITY = 0.1;
 const VISIBILITY_RADIUS = 8;
 
 const myBoard = new Board(TILE_DEGREES, VISIBILITY_RADIUS);
-console.log(myBoard);
 
 const arrayOfVisibleCaches: leaflet.Layer[] = [];
-const arrayInventory: Geocoin[] = [];
+let arrayInventory: Geocoin[] = [];
+
+// const value = localStorage.getItem('key');
+// localStorage.setItem('key', value);
+// localStorage.removeItem('key');
+
+// localStorage.setItem("visible", JSON.stringify(arrayOfVisibleCaches));
+// localStorage.setItem("inventory", JSON.stringify(arrayInventory));
 
 const mapContainer = document.querySelector<HTMLElement>("#map")!;
 
@@ -41,6 +47,7 @@ leaflet
   .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution:
+      // eslint-disable-next-line @typescript-eslint/quotes
       '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   })
   .addTo(map);
@@ -48,7 +55,25 @@ leaflet
 const playerMarker = leaflet.marker(MERRILL_CLASSROOM);
 playerMarker.bindTooltip("That's you!");
 playerMarker.addTo(map);
+
+if (localStorage.getItem("position")) {
+  playerMarker.setLatLng(
+    JSON.parse(localStorage.getItem("position")!) as leaflet.LatLng
+  );
+}
+
+if (localStorage.getItem("inventory")) {
+  arrayInventory = JSON.parse(localStorage.getItem("inventory")!) as Geocoin[];
+}
+
+if (localStorage.getItem("visited")) {
+  myBoard.updateKnownCells(
+    JSON.parse(localStorage.getItem("visited")!) as string[][]
+  );
+}
+
 moveTo(playerMarker.getLatLng().lat, playerMarker.getLatLng().lng);
+map.setView(playerMarker.getLatLng());
 
 const sensorButton = document.querySelector("#sensor")!;
 sensorButton.addEventListener("click", () => {
@@ -58,6 +83,15 @@ sensorButton.addEventListener("click", () => {
     );
     updatePlayer(playerMarker.getLatLng());
   });
+});
+
+const resetButton = document.querySelector("#reset")!;
+resetButton.addEventListener("click", () => {
+  const reset = confirm("Reset all data?");
+  if (reset) {
+    localStorage.clear();
+    location.reload();
+  }
 });
 
 const northButton = document.querySelector("#north")!;
@@ -105,7 +139,7 @@ westButton.addEventListener("click", () => {
 });
 
 const statusPanel = document.querySelector<HTMLDivElement>("#statusPanel")!;
-statusPanel.innerHTML = "No points yet...";
+statusPanel.innerHTML = "Explore!";
 
 function makeCache(i: number, j: number) {
   const cell = myBoard.getCellForPoint(
@@ -149,6 +183,14 @@ function updatePlayer(player: leaflet.LatLng) {
   arrayOfVisibleCaches.forEach((cache) => {
     cache.remove();
   });
+  localStorage.setItem(
+    "position",
+    JSON.stringify({
+      lat: playerMarker.getLatLng().lat,
+      lng: playerMarker.getLatLng().lng,
+    })
+  );
+
   getCachesNearby(player);
 }
 
@@ -304,4 +346,9 @@ function updateCacheAtPoint(cell: Cell, data: string, board: Board) {
   const { i, j } = cell;
   const key = [i, j].toString();
   board.knownCells.set(key, data);
+
+  const jsonMap = JSON.stringify(Array.from(myBoard.knownCells.entries()));
+  localStorage.setItem("visited", jsonMap);
+
+  localStorage.setItem("inventory", JSON.stringify(arrayInventory));
 }
