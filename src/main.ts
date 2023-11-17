@@ -83,6 +83,7 @@ sensorButton.addEventListener("click", () => {
     );
     updatePlayer(playerMarker.getLatLng());
   });
+  lineArray = [];
 });
 
 const resetButton = document.querySelector("#reset")!;
