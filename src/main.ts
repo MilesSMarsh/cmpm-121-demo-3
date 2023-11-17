@@ -25,13 +25,6 @@ const myBoard = new Board(TILE_DEGREES, VISIBILITY_RADIUS);
 const arrayOfVisibleCaches: leaflet.Layer[] = [];
 let arrayInventory: Geocoin[] = [];
 
-// const value = localStorage.getItem('key');
-// localStorage.setItem('key', value);
-// localStorage.removeItem('key');
-
-// localStorage.setItem("visible", JSON.stringify(arrayOfVisibleCaches));
-// localStorage.setItem("inventory", JSON.stringify(arrayInventory));
-
 const mapContainer = document.querySelector<HTMLElement>("#map")!;
 
 const map = leaflet.map(mapContainer, {
@@ -257,82 +250,6 @@ function addCoinsFromInventory(geocache: Geocache, container: HTMLElement) {
     });
   });
 }
-
-//Tried to refactor but it just got larger I might come back to this later
-
-// function addCoinsFromArray(
-//   array: Geocoin[],
-//   geocache: Geocache,
-//   container: HTMLElement,
-//   inInventory: boolean
-// ) {
-//   let command1 = "Place";
-//   let command2 = "Take";
-//   array.forEach((coin) => {
-//     const currCoin = document.createElement("button") as HTMLElement;
-//     container.append(currCoin);
-
-//     const currHiddenCoin = document.createElement("button") as HTMLElement;
-//     currHiddenCoin.hidden = true;
-//     container.append(currHiddenCoin);
-
-//     let function1: () => void;
-//     let function2: () => void;
-
-//     if (inInventory) {
-//       command1 = "Place";
-//       command2 = "Take";
-//       function1 = function () {
-//         placeCoin(currCoin, currHiddenCoin, coin);
-//       };
-//       function2 = function () {
-//         removeCoin(currCoin, currHiddenCoin, coin);
-//       };
-//     } else {
-//       command1 = "take";
-//       command2 = "place";
-//       function2 = function () {
-//         placeCoin(currCoin, currHiddenCoin, coin);
-//       };
-//       function1 = function () {
-//         removeCoin(currCoin, currHiddenCoin, coin);
-//       };
-//     }
-//     currCoin.innerHTML = `
-//             <div>${command1}: <span id="coin">${coin.serial}</span></div>`;
-//     currCoin.addEventListener("click", () => function1());
-
-//     currHiddenCoin.innerHTML = `
-//             <div>${command2}: <span id="coin">${coin.serial}</span></div>`;
-//     currHiddenCoin.addEventListener("click", () => function2());
-//   });
-
-//   function placeCoin(
-//     currCoin: HTMLElement,
-//     currHiddenCoin: HTMLElement,
-//     coin: Geocoin
-//   ) {
-//     console.log("put coin");
-//     currCoin.hidden = true;
-//     currHiddenCoin.hidden = false;
-//     geocache.addCoin(coin);
-//     removeFromInventory(coin);
-//     updateCacheAtPoint(geocache.cell, geocache.cacheToString(), myBoard);
-//   }
-
-//   function removeCoin(
-//     currCoin: HTMLElement,
-//     currHiddenCoin: HTMLElement,
-//     coin: Geocoin
-//   ) {
-//     console.log("take coin");
-//     currCoin.hidden = false;
-//     currHiddenCoin.hidden = true;
-//     geocache.removeCoin(coin);
-//     arrayInventory.push(coin);
-//     updateCacheAtPoint(geocache.cell, geocache.cacheToString(), myBoard);
-//   }
-// }
 
 function removeFromInventory(coin: Geocoin) {
   arrayInventory.forEach((item, index) => {
