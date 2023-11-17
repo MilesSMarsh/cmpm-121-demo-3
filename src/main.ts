@@ -26,7 +26,7 @@ const myBoard = new Board(TILE_DEGREES, VISIBILITY_RADIUS);
 
 const arrayOfVisibleCaches: leaflet.Layer[] = [];
 let arrayInventory: Geocoin[] = [];
-const lineArray: LatLngExpression[] = [];
+let lineArray: LatLngExpression[] = [];
 
 const mapContainer = document.querySelector<HTMLElement>("#map")!;
 
@@ -51,6 +51,10 @@ leaflet
 const playerMarker = leaflet.marker(MERRILL_CLASSROOM);
 playerMarker.bindTooltip("That's you!");
 playerMarker.addTo(map);
+
+if (localStorage.getItem("line")) {
+  lineArray = JSON.parse(localStorage.getItem("line")!) as LatLngExpression[];
+}
 
 if (localStorage.getItem("position")) {
   playerMarker.setLatLng(
@@ -186,10 +190,13 @@ function updatePlayer(player: leaflet.LatLng) {
       lng: playerMarker.getLatLng().lng,
     })
   );
+
   lineArray.push({ lat: player.lat, lng: player.lng });
+  localStorage.setItem("line", JSON.stringify(lineArray));
   L.polyline(lineArray, { color: "red" }).addTo(map);
   getCachesNearby(player);
 }
+updatePlayer(playerMarker.getLatLng());
 
 function addCoinsFromCache(geocache: Geocache, container: HTMLElement) {
   geocache.cacheCoins.forEach((coin) => {
