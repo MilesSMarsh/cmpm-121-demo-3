@@ -1,9 +1,11 @@
 import "leaflet/dist/leaflet.css";
 import "./style.css";
-import leaflet from "leaflet";
+import leaflet, { LatLngExpression } from "leaflet";
 import luck from "./luck";
 import "./leafletWorkaround";
 import { Board, Geocache, Cell, Geocoin } from "./board";
+// eslint-disable-next-line @typescript-eslint/naming-convention
+import L from "leaflet";
 
 const MERRILL_CLASSROOM = leaflet.latLng({
   lat: 36.9995,
@@ -24,6 +26,7 @@ const myBoard = new Board(TILE_DEGREES, VISIBILITY_RADIUS);
 
 const arrayOfVisibleCaches: leaflet.Layer[] = [];
 let arrayInventory: Geocoin[] = [];
+const lineArray: LatLngExpression[] = [];
 
 const mapContainer = document.querySelector<HTMLElement>("#map")!;
 
@@ -183,7 +186,8 @@ function updatePlayer(player: leaflet.LatLng) {
       lng: playerMarker.getLatLng().lng,
     })
   );
-
+  lineArray.push({ lat: player.lat, lng: player.lng });
+  L.polyline(lineArray, { color: "red" }).addTo(map);
   getCachesNearby(player);
 }
 
